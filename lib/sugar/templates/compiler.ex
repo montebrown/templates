@@ -7,10 +7,11 @@ defmodule Sugar.Templates.Compiler do
   Starts the `Templates.Compiler` server.
   """
   def start_link do
-    start_link []
+    start_link([])
   end
+
   def start_link(args) do
-    :gen_server.start({ :local, @name }, __MODULE__, args, [])
+    :gen_server.start({:local, @name}, __MODULE__, args, [])
   end
 
   @doc """
@@ -19,6 +20,7 @@ defmodule Sugar.Templates.Compiler do
   def stop do
     stop(@name)
   end
+
   def stop(@name) do
     :gen_server.call(@name, :stop)
   end
@@ -29,14 +31,14 @@ defmodule Sugar.Templates.Compiler do
   init our state
   """
   def init(_args) do
-    { :ok, %{} }
+    {:ok, %{}}
   end
 
   @doc """
   grab our templates from the GenServer state
   """
   def handle_call(:get_templates, _from, templates) do
-    { :reply, {:ok, templates}, templates }
+    {:reply, {:ok, templates}, templates}
   end
 
   @doc false
@@ -48,7 +50,7 @@ defmodule Sugar.Templates.Compiler do
   add/update a template to the GenServer state
   """
   def handle_cast({:put_template, %Sugar.Templates.Template{} = template}, templates) do
-    { :noreply, templates |> Map.put(template.key, template) }
+    {:noreply, templates |> Map.put(template.key, template)}
   end
 
   @doc """
@@ -56,9 +58,10 @@ defmodule Sugar.Templates.Compiler do
   """
   def handle_cast({:compile, %Sugar.Templates.Template{engine: engine} = template}, templates) do
     case engine.compile(template) do
-      { :ok, template } -> Sugar.Templates.put_template(template)
-      { :error, _ } -> :ok
+      {:ok, template} -> Sugar.Templates.put_template(template)
+      {:error, _} -> :ok
     end
-    { :noreply, templates }
+
+    {:noreply, templates}
   end
 end

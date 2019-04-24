@@ -3,117 +3,122 @@ defmodule Sugar.TemplatesTest do
   alias Sugar.Templates.Compiler
 
   test "compile/1 with list" do
-    Compiler.start_link
+    Compiler.start_link()
 
-    templates = [ %Sugar.Templates.Template{
-                      key: "index.html.eex",
-                      source: "<html><head><title><%= @name %></title></head></html>",
-                      engine: Sugar.Templates.Engines.EEx
-                  },
-                  %Sugar.Templates.Template{
-                      key: "show.html.eex",
-                      source: "<html><head><title><%= @name %></title></head></html>",
-                      engine: Sugar.Templates.Engines.EEx
-                  } ]
+    templates = [
+      %Sugar.Templates.Template{
+        key: "index.html.eex",
+        source: "<html><head><title><%= @name %></title></head></html>",
+        engine: Sugar.Templates.Engines.EEx
+      },
+      %Sugar.Templates.Template{
+        key: "show.html.eex",
+        source: "<html><head><title><%= @name %></title></head></html>",
+        engine: Sugar.Templates.Engines.EEx
+      }
+    ]
 
     compile_statuses = Sugar.Templates.compile(templates)
 
     assert compile_statuses === [:ok, :ok]
 
-    Compiler.stop
+    Compiler.stop()
   end
 
   test "compile/1 with template" do
-    Compiler.start_link
+    Compiler.start_link()
 
     template = %Sugar.Templates.Template{
-        key: "index.html.eex",
-        source: "<html><head><title><%= @name %></title></head></html>",
-        engine: Sugar.Templates.Engines.EEx
+      key: "index.html.eex",
+      source: "<html><head><title><%= @name %></title></head></html>",
+      engine: Sugar.Templates.Engines.EEx
     }
 
     compile_status = Sugar.Templates.compile(template)
 
     assert compile_status === :ok
 
-    Compiler.stop
+    Compiler.stop()
   end
 
   test "get_all_templates/0" do
-    Compiler.start_link
+    Compiler.start_link()
 
     template = %Sugar.Templates.Template{
-        key: "index.html.eex",
-        source: "<html><head><title><%= @name %></title></head></html>",
-        engine: Sugar.Templates.Engines.EEx
+      key: "index.html.eex",
+      source: "<html><head><title><%= @name %></title></head></html>",
+      engine: Sugar.Templates.Engines.EEx
     }
-    expected = %{ "index.html.eex" => template }
+
+    expected = %{"index.html.eex" => template}
 
     put_status = Sugar.Templates.put_template(template)
-    templates = Sugar.Templates.get_all_templates
+    templates = Sugar.Templates.get_all_templates()
 
     assert put_status === :ok
     assert templates === expected
 
-    Compiler.stop
+    Compiler.stop()
   end
 
   test "get_template/1" do
-    Compiler.start_link
+    Compiler.start_link()
 
     template = %Sugar.Templates.Template{
-        key: "index.html.eex",
-        source: "<html><head><title><%= @name %></title></head></html>",
-        engine: Sugar.Templates.Engines.EEx
+      key: "index.html.eex",
+      source: "<html><head><title><%= @name %></title></head></html>",
+      engine: Sugar.Templates.Engines.EEx
     }
 
     assert Sugar.Templates.put_template(template) === :ok
     assert Sugar.Templates.get_template(template.key) === template
 
-    Compiler.stop
+    Compiler.stop()
   end
 
   test "put_template/1" do
-    Compiler.start_link
+    Compiler.start_link()
 
     template = %Sugar.Templates.Template{
-        key: "index.html.eex",
-        source: "<html><head><title><%= @name %></title></head></html>",
-        engine: Sugar.Templates.Engines.EEx
+      key: "index.html.eex",
+      source: "<html><head><title><%= @name %></title></head></html>",
+      engine: Sugar.Templates.Engines.EEx
     }
 
     assert Sugar.Templates.put_template(template) === :ok
 
-    Compiler.stop
+    Compiler.stop()
   end
 
   test "render/2 with template" do
-      Compiler.start_link
+    Compiler.start_link()
 
-      template = %Sugar.Templates.Template{
-          key: "index.html.eex",
-          source: "<html><head><title><%= @name %></title></head></html>",
-          engine: Sugar.Templates.Engines.EEx
-      }
-      assigns = [name: "Bob"]
+    template = %Sugar.Templates.Template{
+      key: "index.html.eex",
+      source: "<html><head><title><%= @name %></title></head></html>",
+      engine: Sugar.Templates.Engines.EEx
+    }
 
-      compile_status = Sugar.Templates.compile(template)
-      html = Sugar.Templates.render(template, assigns)
+    assigns = [name: "Bob"]
 
-      assert compile_status === :ok
-      assert html === "<html><head><title>Bob</title></head></html>"
+    compile_status = Sugar.Templates.compile(template)
+    html = Sugar.Templates.render(template, assigns)
 
-      Compiler.stop
+    assert compile_status === :ok
+    assert html === {:safe, ["<html><head><title>", "Bob", "</title></head></html>"]}
+
+    Compiler.stop()
   end
 
   test "render/2 with key" do
-    Compiler.start_link
+    Compiler.start_link()
 
     template = %Sugar.Templates.Template{
-        key: "index.html.eex",
-        source: "<html><head><title><%= @name %></title></head></html>",
-        engine: Sugar.Templates.Engines.EEx
+      key: "index.html.eex",
+      source: "<html><head><title><%= @name %></title></head></html>",
+      engine: Sugar.Templates.Engines.EEx
     }
+
     assigns = [name: "Bob"]
 
     template.engine.compile(template)
@@ -121,8 +126,8 @@ defmodule Sugar.TemplatesTest do
     html = Sugar.Templates.render("index.html.eex", assigns)
 
     assert compile_status === :ok
-    assert html === "<html><head><title>Bob</title></head></html>"
+    assert html === {:safe, ["<html><head><title>", "Bob", "</title></head></html>"]}
 
-    Compiler.stop
+    Compiler.stop()
   end
 end
